@@ -2,7 +2,7 @@
 //  ContentView.swift
 //  TXTtoCSVConverter
 //
-//  Haupt-View mit drei Schritten
+//  Haupt-View mit Liquid Glass Design und flüssigen Animationen (macOS Tahoe)
 //
 
 import SwiftUI
@@ -12,61 +12,108 @@ struct ContentView: View {
 
     var body: some View {
         ZStack {
-            // Hintergrund
-            Color(nsColor: .windowBackgroundColor)
+            // Konstanter Mesh Gradient Background
+            Color.meshBackground
                 .ignoresSafeArea()
 
-            // Hauptinhalt
+            // Hauptinhalt mit flüssigen Übergängen
             Group {
                 switch manager.currentStep {
                 case .fileSelection:
-                    FileDropView(manager: manager)
+                    FileDropView_Tahoe(manager: manager)
                         .transition(.asymmetric(
-                            insertion: .move(edge: .leading).combined(with: .opacity),
-                            removal: .move(edge: .trailing).combined(with: .opacity)
+                            insertion: .move(edge: .leading).combined(with: .opacity).combined(with: .scale(scale: 0.95)),
+                            removal: .move(edge: .trailing).combined(with: .opacity).combined(with: .scale(scale: 1.05))
                         ))
+                        .zIndex(1)
 
                 case .classFilter:
-                    ClassFilterView(manager: manager)
+                    ClassFilterView_Tahoe(manager: manager)
                         .transition(.asymmetric(
-                            insertion: .move(edge: .trailing).combined(with: .opacity),
-                            removal: .move(edge: .leading).combined(with: .opacity)
+                            insertion: .move(edge: .trailing).combined(with: .opacity).combined(with: .scale(scale: 0.95)),
+                            removal: .move(edge: .leading).combined(with: .opacity).combined(with: .scale(scale: 1.05))
                         ))
+                        .zIndex(2)
 
                 case .conversion:
-                    ExportView(manager: manager)
+                    ExportView_Tahoe(manager: manager)
                         .transition(.asymmetric(
-                            insertion: .move(edge: .trailing).combined(with: .opacity),
-                            removal: .move(edge: .leading).combined(with: .opacity)
+                            insertion: .move(edge: .trailing).combined(with: .opacity).combined(with: .scale(scale: 0.95)),
+                            removal: .move(edge: .leading).combined(with: .opacity).combined(with: .scale(scale: 1.05))
                         ))
+                        .zIndex(3)
                 }
             }
-            .animation(.spring(response: 0.4, dampingFraction: 0.8), value: manager.currentStep)
+            .animation(.spring(response: 0.5, dampingFraction: 0.75), value: manager.currentStep)
 
-            // Loading Overlay
+            // Loading Overlay (Liquid Glass)
             if manager.isProcessing {
-                ZStack {
-                    Color.black.opacity(0.3)
-                        .ignoresSafeArea()
-
-                    VStack(spacing: 16) {
-                        ProgressView()
-                            .scaleEffect(1.5)
-                            .progressViewStyle(.circular)
-
-                        Text("Verarbeite...")
-                            .font(.headline)
-                    }
-                    .padding(40)
-                    .background(.ultraThinMaterial)
-                    .cornerRadius(20)
-                }
+                loadingOverlay
             }
         }
+        .preferredColorScheme(nil)  // Unterstützt Light & Dark Mode
+    }
+
+    // MARK: - Loading Overlay
+
+    private var loadingOverlay: some View {
+        ZStack {
+            // Backdrop
+            Rectangle()
+                .fill(.regularMaterial)
+                .ignoresSafeArea()
+
+            // Loading Card
+            VStack(spacing: TahoeSpacing.lg) {
+                // Animated Progress
+                ZStack {
+                    Circle()
+                        .stroke(Color.primary.opacity(0.1), lineWidth: 4)
+                        .frame(width: 60, height: 60)
+
+                    Circle()
+                        .trim(from: 0, to: 0.7)
+                        .stroke(
+                            LinearGradient(
+                                colors: [.tahoeBlue, .tahoePurple],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            style: StrokeStyle(lineWidth: 4, lineCap: .round)
+                        )
+                        .frame(width: 60, height: 60)
+                        .rotationEffect(.degrees(-90))
+                        .rotationEffect(.degrees(manager.isProcessing ? 360 : 0))
+                        .animation(.linear(duration: 1.0).repeatForever(autoreverses: false), value: manager.isProcessing)
+                }
+
+                Text("Verarbeite...")
+                    .font(.title3)
+                    .fontWeight(.medium)
+                    .foregroundStyle(.primary)
+            }
+            .padding(TahoeSpacing.xxl)
+            .background(.ultraThinMaterial)
+            .clipShape(TahoeRadius.continuous(TahoeRadius.xxl))
+            .overlay(
+                TahoeRadius.continuous(TahoeRadius.xxl)
+                    .stroke(
+                        LinearGradient(
+                            colors: [.white.opacity(0.3), .white.opacity(0.05)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        ),
+                        lineWidth: 1
+                    )
+            )
+            .shadow(color: .black.opacity(0.2), radius: 30, y: 15)
+        }
+        .transition(.opacity.combined(with: .scale(scale: 0.9)))
+        .animation(.spring(response: 0.4, dampingFraction: 0.7), value: manager.isProcessing)
     }
 }
 
 #Preview {
     ContentView()
-        .frame(width: 700, height: 550)
+        .frame(width: 1000, height: 800)
 }
