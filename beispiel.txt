@@ -1,0 +1,4 @@
+"eindeutige Nummer (GUID)";"Nachname";"Vorname";"Klasse";"Allg. Adresse: Betreuer Name";"Allg. Adresse: Betreuer E-Mail"
+"123e4567-e89b-12d3-a456-426614174000";"Müller";"Hans";"10A";"Herr Schmidt";"schmidt@example.com"
+"223e4567-e89b-12d3-a456-426614174001";"Schneider";"Anna";"10B";"Frau Meier";"meier@example.com"
+"323e4567-e89b-12d3-a456-426614174002";"Weber";"Tom";"9A";"Herr Fischer";"fischer@example.com"
