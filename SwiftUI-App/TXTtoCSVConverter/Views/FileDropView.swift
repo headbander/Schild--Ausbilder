@@ -136,8 +136,14 @@ struct FileDropView: View {
         panel.allowedContentTypes = [.plainText, .text]
         panel.message = "Wählen Sie eine TXT-Datei zum Konvertieren"
 
-        if panel.runModal() == .OK, let url = panel.url {
-            manager.selectFile(url)
+        // WICHTIG: panel.begin statt panel.runModal() um Threading-Probleme zu vermeiden!
+        panel.begin { [weak manager] response in
+            guard let manager = manager else { return }
+            if response == .OK, let url = panel.url {
+                DispatchQueue.main.async {
+                    manager.selectFile(url)
+                }
+            }
         }
     }
 
