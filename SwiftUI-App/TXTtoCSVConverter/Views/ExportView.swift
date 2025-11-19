@@ -163,16 +163,12 @@ struct ExportView: View {
             panel.nameFieldStringValue = "converted.csv"
         }
 
-        // WICHTIG: panel.begin statt panel.runModal() um Threading-Probleme zu vermeiden!
-        panel.begin { [weak manager] response in
-            guard let manager = manager else { return }
-            if response == .OK, let url = panel.url {
-                // WICHTIG: UI-Updates müssen auf dem Main Thread erfolgen
-                DispatchQueue.main.async {
-                    manager.exportToCSV(url: url)
-                }
-            }
-        }
+        // Führe den Dialog modal aus (funktioniert mit korrekten Entitlements!)
+        let response = panel.runModal()
+        guard response == .OK else { return }
+        guard let url = panel.url else { return }
+
+        manager.exportToCSV(url: url)
     }
 }
 

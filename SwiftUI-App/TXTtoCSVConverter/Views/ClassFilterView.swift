@@ -2,7 +2,7 @@
 //  ClassFilterView.swift
 //  TXTtoCSVConverter
 //
-//  SCHRITT 2: Klassen-Filter View mit Checkboxen
+//  SCHRITT 2: Klassen-Filter View mit Checkboxen - DYNAMISCHES LAYOUT
 //
 
 import SwiftUI
@@ -11,11 +11,11 @@ struct ClassFilterView: View {
     @ObservedObject var manager: ConversionManager
 
     var body: some View {
-        VStack(spacing: 30) {
-            // Header
+        VStack(spacing: 20) {
+            // Header - FIXE HÖHE
             VStack(spacing: 8) {
                 Image(systemName: "checklist")
-                    .font(.system(size: 60))
+                    .font(.system(size: 50))
                     .foregroundStyle(.blue)
                     .symbolEffect(.bounce, value: !manager.selectedClasses.isEmpty)
 
@@ -23,78 +23,76 @@ struct ClassFilterView: View {
                     .font(.largeTitle)
                     .fontWeight(.bold)
 
-                Text("Schritt 2: Filter")
-                    .font(.headline)
+                Text("Wählen Sie die Klassen aus, die exportiert werden sollen")
+                    .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
-            .padding(.top, 40)
+            .padding(.top, 20)
 
-            // Klassen-Filter
-            VStack(spacing: 20) {
-                // Statistik
-                HStack(spacing: 20) {
-                    StatCard(
-                        title: "Gefunden",
-                        value: "\(manager.availableClasses.count)",
-                        icon: "list.bullet",
-                        color: .blue
-                    )
+            // Statistik - FIXE HÖHE
+            HStack(spacing: 20) {
+                StatCard(
+                    title: "Gefunden",
+                    value: "\(manager.availableClasses.count)",
+                    icon: "list.bullet",
+                    color: .blue
+                )
 
-                    StatCard(
-                        title: "Ausgewählt",
-                        value: "\(manager.selectedClasses.count)",
-                        icon: "checkmark.circle",
-                        color: .green
-                    )
+                StatCard(
+                    title: "Ausgewählt",
+                    value: "\(manager.selectedClasses.count)",
+                    icon: "checkmark.circle",
+                    color: .green
+                )
 
-                    StatCard(
-                        title: "Einträge",
-                        value: "\(manager.filteredRecords.count)",
-                        icon: "person.2",
-                        color: .orange
-                    )
+                StatCard(
+                    title: "Einträge",
+                    value: "\(manager.filteredRecords.count)",
+                    icon: "person.2",
+                    color: .orange
+                )
+            }
+            .padding(.horizontal, 40)
+
+            // Auswahl-Buttons - FIXE HÖHE
+            HStack(spacing: 16) {
+                Button(action: manager.selectAllClasses) {
+                    Label("Alle auswählen", systemImage: "checkmark.circle.fill")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
                 }
-                .padding(.horizontal, 40)
+                .buttonStyle(.bordered)
+                .controlSize(.large)
 
-                // Auswahl-Buttons
-                HStack(spacing: 12) {
-                    Button(action: manager.selectAllClasses) {
-                        Label("Alle auswählen", systemImage: "checkmark.circle.fill")
-                            .font(.subheadline)
-                    }
-                    .buttonStyle(.bordered)
-
-                    Button(action: manager.deselectAllClasses) {
-                        Label("Keine auswählen", systemImage: "circle")
-                            .font(.subheadline)
-                    }
-                    .buttonStyle(.bordered)
+                Button(action: manager.deselectAllClasses) {
+                    Label("Alle abwählen", systemImage: "circle")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
                 }
-
-                // Klassen-Liste mit Checkboxen - VIEL GRÖSSER!
-                ScrollView {
-                    VStack(spacing: 12) {  // Mehr Spacing zwischen Zeilen
-                        ForEach(manager.availableClasses.sorted(), id: \.self) { className in
-                            ClassCheckboxRow(
-                                className: className,
-                                isSelected: manager.selectedClasses.contains(className),
-                                count: manager.allRecords.filter { $0.className == className }.count
-                            ) {
-                                manager.toggleClass(className)
-                            }
-                        }
-                    }
-                    .padding(20)  // Mehr Padding
-                }
-                .frame(minHeight: 400, maxHeight: 500)  // VIEL GRÖSSER: 400-500px!
-                .background(Color.gray.opacity(0.05))
-                .cornerRadius(15)
-                .padding(.horizontal, 40)
+                .buttonStyle(.bordered)
+                .controlSize(.large)
             }
 
-            Spacer()
+            // Klassen-Liste - DYNAMISCH WACHSEND!
+            ScrollView {
+                VStack(alignment: .leading, spacing: 12) {
+                    ForEach(manager.availableClasses.sorted(), id: \.self) { className in
+                        ClassSelectionRow(
+                            className: className,
+                            isSelected: manager.selectedClasses.contains(className),
+                            studentCount: manager.allRecords.filter { $0.className == className }.count,
+                            onToggle: { manager.toggleClass(className) }
+                        )
+                    }
+                }
+                .padding(20)
+            }
+            .frame(maxHeight: .infinity)  // WICHTIG: Nimmt allen verfügbaren Platz!
+            .background(Color.gray.opacity(0.05))
+            .cornerRadius(15)
+            .padding(.horizontal, 40)
 
-            // Navigation Buttons
+            // Navigation - FIXE HÖHE
             HStack {
                 Button(action: { manager.currentStep = .fileSelection }) {
                     Label("Zurück", systemImage: "arrow.left")
@@ -106,7 +104,7 @@ struct ClassFilterView: View {
                 Spacer()
 
                 Button(action: manager.goToConversion) {
-                    Label("Konvertieren", systemImage: "arrow.right")
+                    Label("Weiter zum Export", systemImage: "arrow.right")
                         .font(.headline)
                 }
                 .buttonStyle(.borderedProminent)
@@ -114,7 +112,7 @@ struct ClassFilterView: View {
                 .disabled(!manager.canProceedToConversion)
             }
             .padding(.horizontal, 40)
-            .padding(.bottom, 30)
+            .padding(.bottom, 20)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -122,45 +120,47 @@ struct ClassFilterView: View {
 
 // MARK: - Subviews
 
-struct ClassCheckboxRow: View {
+// Separate Row-Komponente für bessere Lesbarkeit und Performance
+struct ClassSelectionRow: View {
     let className: String
     let isSelected: Bool
-    let count: Int
-    let action: () -> Void
+    let studentCount: Int
+    let onToggle: () -> Void
 
     var body: some View {
-        Button(action: action) {
-            HStack(spacing: 16) {  // Mehr Spacing
-                // GRÖSSERES Icon
+        Button(action: onToggle) {
+            HStack(spacing: 16) {
+                // Checkbox Icon
                 Image(systemName: isSelected ? "checkmark.square.fill" : "square")
-                    .font(.system(size: 28))  // Größer!
-                    .foregroundStyle(isSelected ? .blue : .secondary)
+                    .font(.system(size: 28))
+                    .foregroundStyle(isSelected ? .blue : .gray)
+                    .frame(width: 30)
 
-                // GRÖSSERE Schrift für Klassennamen
+                // Klassenname
                 Text(className)
-                    .font(.title3)  // Größer: .title3 statt .body
+                    .font(.title3)
                     .fontWeight(isSelected ? .semibold : .regular)
                     .foregroundStyle(.primary)
 
                 Spacer()
 
-                // Anzahl Schüler
-                Text("\(count) Schüler")  // "Schüler" hinzugefügt
-                    .font(.body)  // Größer
+                // Schüleranzahl
+                Text("\(studentCount) Schüler")
+                    .font(.body)
                     .foregroundStyle(.secondary)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)
-                    .background(Color.gray.opacity(0.1))
+                    .background(Color.gray.opacity(0.15))
                     .cornerRadius(8)
             }
-            .padding(16)  // Mehr Padding
+            .padding(16)
             .background(
-                RoundedRectangle(cornerRadius: 12)  // Etwas rundere Ecken
+                RoundedRectangle(cornerRadius: 12)
                     .fill(isSelected ? Color.accentColor.opacity(0.1) : Color.clear)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .strokeBorder(isSelected ? Color.accentColor : Color.gray.opacity(0.2), lineWidth: 2)  // Dickerer Border
+                    .strokeBorder(isSelected ? Color.accentColor : Color.gray.opacity(0.2), lineWidth: 2)
             )
         }
         .buttonStyle(.plain)
@@ -196,8 +196,8 @@ struct StatCard: View {
 
 #Preview {
     let manager = ConversionManager()
-    manager.availableClasses = ["10A", "10B", "9A", "11C", "12D"]
+    manager.availableClasses = ["10A", "10B", "9A", "11C", "12D", "8B", "7A", "13E"]
     manager.selectedClasses = ["10A", "9A"]
     return ClassFilterView(manager: manager)
-        .frame(width: 600, height: 500)
+        .frame(width: 900, height: 700)
 }

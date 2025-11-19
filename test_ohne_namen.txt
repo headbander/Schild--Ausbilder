@@ -1,0 +1,11 @@
+Klasse;Geburtsdatum;Adresse
+10A;01.01.2010;Hauptstraße 1
+10B;02.02.2010;Nebenstraße 2
+9A;03.03.2011;Bergstraße 3
+10A;04.04.2010;Talstraße 4
+11C;05.05.2009;Waldweg 5
+10B;06.06.2010;Seeweg 6
+9A;07.07.2011;Parkstraße 7
+12D;08.08.2008;Kirchweg 8
+10A;09.09.2010;Bahnhofstraße 9
+8B;10.10.2012;Schulstraße 10

@@ -3,6 +3,7 @@
 //  TXTtoCSVConverter
 //
 //  Parser für semikolon-getrennte CSV/TXT-Dateien
+//  WICHTIG: Namen sind OPTIONAL, nur "Klasse" ist PFLICHT!
 //
 
 import Foundation
@@ -13,22 +14,26 @@ class CSVParser {
         case fileReadError
         case encodingError
         case missingHeaders
+        case noClassColumn
 
         var localizedDescription: String {
             switch self {
             case .invalidFormat:
-                return "Ungültiges Dateiformat"
+                return "Ungültiges Dateiformat. Erwartet wird eine Semikolon-getrennte TXT-Datei."
             case .fileReadError:
-                return "Datei konnte nicht gelesen werden"
+                return "Datei konnte nicht gelesen werden."
             case .encodingError:
-                return "Encoding-Fehler (erwartet UTF-8)"
+                return "Encoding-Fehler (erwartet UTF-8)."
             case .missingHeaders:
-                return "Keine Header-Zeile gefunden"
+                return "Keine Header-Zeile gefunden."
+            case .noClassColumn:
+                return "Keine 'Klasse'-Spalte gefunden. Diese Spalte ist zwingend erforderlich!"
             }
         }
     }
 
     /// Liest eine semikolon-getrennte TXT-Datei und parst sie zu StudentRecords
+    /// WICHTIG: Nur "Klasse" ist Pflicht, alle anderen Felder (Namen, GUID, Email) sind optional!
     static func parse(fileURL: URL) throws -> [StudentRecord] {
         // Datei lesen mit UTF-8
         guard let content = try? String(contentsOf: fileURL, encoding: .utf8) else {
@@ -47,16 +52,29 @@ class CSVParser {
         let headerLine = lines[0]
         let headers = parseCSVLine(headerLine, delimiter: ";")
 
-        // Finde Spalten-Indizes
-        guard let guidIndex = headers.firstIndex(where: { $0.contains("eindeutige Nummer") || $0.contains("GUID") }),
-              let lastNameIndex = headers.firstIndex(of: "Nachname"),
-              let firstNameIndex = headers.firstIndex(of: "Vorname"),
-              let classIndex = headers.firstIndex(of: "Klasse") else {
-            throw ParseError.invalidFormat
+        // Finde Spalten-Indizes - NUR "Klasse" ist PFLICHT!
+        guard let classIndex = headers.firstIndex(where: {
+            $0.lowercased().contains("klasse")
+        }) else {
+            throw ParseError.noClassColumn
         }
 
-        let emailIndex = headers.firstIndex(where: { $0.contains("Betreuer E-Mail") })
-        let supervisorIndex = headers.firstIndex(where: { $0.contains("Betreuer Name") })
+        // Alle anderen Spalten sind OPTIONAL
+        let guidIndex = headers.firstIndex(where: {
+            $0.lowercased().contains("guid") || $0.lowercased().contains("eindeutige nummer")
+        })
+        let lastNameIndex = headers.firstIndex(where: {
+            $0.lowercased() == "nachname" || $0.lowercased() == "name"
+        })
+        let firstNameIndex = headers.firstIndex(where: {
+            $0.lowercased() == "vorname"
+        })
+        let emailIndex = headers.firstIndex(where: {
+            $0.lowercased().contains("betreuer e-mail") || $0.lowercased().contains("email")
+        })
+        let supervisorIndex = headers.firstIndex(where: {
+            $0.lowercased().contains("betreuer name")
+        })
 
         // Parse Datenzeilen
         var records: [StudentRecord] = []
@@ -64,15 +82,32 @@ class CSVParser {
         for line in lines.dropFirst() {
             let fields = parseCSVLine(line, delimiter: ";")
 
-            guard fields.count > max(guidIndex, lastNameIndex, firstNameIndex, classIndex) else {
-                continue // Überspringe ungültige Zeilen
+            // Überspringe Zeilen, die zu kurz sind
+            guard fields.count > classIndex else {
+                continue
+            }
+
+            // WICHTIG: Klasse MUSS vorhanden und nicht leer sein!
+            let className = fields[classIndex].trimmingCharacters(in: .whitespaces)
+            guard !className.isEmpty else {
+                continue // Überspringe Zeilen ohne Klasse
             }
 
             var record = StudentRecord()
-            record.guid = fields[guidIndex].trimmingCharacters(in: .whitespaces)
-            record.lastName = fields[lastNameIndex].trimmingCharacters(in: .whitespaces)
-            record.firstName = fields[firstNameIndex].trimmingCharacters(in: .whitespaces)
-            record.className = fields[classIndex].trimmingCharacters(in: .whitespaces)
+            record.className = className
+
+            // ALLE anderen Felder sind OPTIONAL - verwende leere Strings als Default
+            if let guidIdx = guidIndex, guidIdx < fields.count {
+                record.guid = fields[guidIdx].trimmingCharacters(in: .whitespaces)
+            }
+
+            if let lastNameIdx = lastNameIndex, lastNameIdx < fields.count {
+                record.lastName = fields[lastNameIdx].trimmingCharacters(in: .whitespaces)
+            }
+
+            if let firstNameIdx = firstNameIndex, firstNameIdx < fields.count {
+                record.firstName = fields[firstNameIdx].trimmingCharacters(in: .whitespaces)
+            }
 
             if let emailIdx = emailIndex, emailIdx < fields.count {
                 record.supervisorEmail = fields[emailIdx].trimmingCharacters(in: .whitespaces)
