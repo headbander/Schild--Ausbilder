@@ -1,0 +1,142 @@
+TXT zu CSV Konverter - SwiftUI App
+Dateistruktur für Xcode-Projekt
+
+================================================================================
+WICHTIG: Diese Struktur muss in Xcode repliziert werden!
+================================================================================
+
+Xcode-Projekt: TXTtoCSVConverter
+Target: TXTtoCSVConverter
+Minimum macOS: 13.0 (Ventura)
+
+================================================================================
+DATEIEN ZUM PROJEKT HINZUFÜGEN:
+================================================================================
+
+TXTtoCSVConverter/                           [Xcode Group: Root]
+│
+├── TXTtoCSVConverterApp.swift               ← App Entry Point (ERSETZEN)
+├── ContentView.swift                        ← Haupt-View (ERSETZEN)
+│
+├── Models/                                  [Xcode Group: Models]
+│   ├── StudentRecord.swift                  ← Datenmodell
+│   └── ConversionManager.swift              ← Business Logic / State
+│
+├── Views/                                   [Xcode Group: Views]
+│   ├── FileDropView.swift                   ← Schritt 1: File Upload
+│   ├── ClassFilterView.swift                ← Schritt 2: Class Filter
+│   └── ExportView.swift                     ← Schritt 3: Export
+│
+└── Utils/                                   [Xcode Group: Utils]
+    ├── CSVParser.swift                      ← TXT Parser (Input)
+    └── CSVWriter.swift                      ← CSV Writer (Output)
+
+
+TOTAL: 9 Swift-Dateien
+
+================================================================================
+AUTOMATISCH ERSTELLT VON XCODE (NICHT ANFASSEN):
+================================================================================
+
+TXTtoCSVConverter/
+├── Assets.xcassets/                         ← Icons, Colors, etc.
+│   └── AppIcon.appiconset/
+├── Preview Content/
+│   └── Preview Assets.xcassets/
+└── TXTtoCSVConverter.entitlements           ← Code-Signing
+
+================================================================================
+PROJEKTDATEIEN (XCODE VERWALTET):
+================================================================================
+
+Root/
+├── TXTtoCSVConverter.xcodeproj/             ← Xcode-Projekt
+│   ├── project.pbxproj
+│   └── xcuserdata/
+└── TXTtoCSVConverter/                       ← Quellcode (siehe oben)
+
+================================================================================
+SETUP-SCHRITTE:
+================================================================================
+
+1. Xcode öffnen
+2. File → New → Project → macOS → App
+   - Name: TXTtoCSVConverter
+   - Interface: SwiftUI
+   - Language: Swift
+
+3. Im Projekt-Navigator (links):
+   - Erstelle Groups: Models, Views, Utils
+   - Lösche die auto-erstellte ContentView.swift
+
+4. Füge die 9 Swift-Dateien hinzu:
+   - Drag & Drop in die entsprechenden Groups
+   - ODER: Right-click → Add Files to "TXTtoCSVConverter"
+
+5. Für jede Datei sicherstellen:
+   - File Inspector (rechts) → Target Membership: ✓ TXTtoCSVConverter
+
+6. Build (⌘B) und Run (⌘R)
+
+================================================================================
+DATEI-ZUORDNUNG:
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ Schritt 1: App-Grundstruktur                                        │
+├─────────────────────────────────────────────────────────────────────┤
+│ TXTtoCSVConverterApp.swift   → @main, WindowGroup                   │
+│ ContentView.swift            → Schritt-Wechsel, Animationen          │
+└─────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ Schritt 2: Datenmodelle & Logik                                     │
+├─────────────────────────────────────────────────────────────────────┤
+│ Models/StudentRecord.swift   → Struct für Schüler-Daten             │
+│ Models/ConversionManager.swift → @Published States, Business Logic  │
+└─────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ Schritt 3: User Interface                                           │
+├─────────────────────────────────────────────────────────────────────┤
+│ Views/FileDropView.swift     → Drop-Zone, File-Picker               │
+│ Views/ClassFilterView.swift  → Checkboxen, Buttons                  │
+│ Views/ExportView.swift       → Zusammenfassung, Save-Dialog         │
+└─────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ Schritt 4: Hilfsfunktionen                                          │
+├─────────────────────────────────────────────────────────────────────┤
+│ Utils/CSVParser.swift        → Liest & parst TXT-Dateien            │
+│ Utils/CSVWriter.swift        → Schreibt CSV-Dateien                 │
+└─────────────────────────────────────────────────────────────────────┘
+
+================================================================================
+WICHTIGE EINSTELLUNGEN:
+================================================================================
+
+General:
+  - Deployment Target: macOS 13.0
+  - Bundle Identifier: com.yourname.TXTtoCSVConverter
+
+Signing & Capabilities:
+  - Team: Ihr Apple ID / "Sign to Run Locally"
+  - Signing Certificate: Development
+
+Build Settings:
+  - Swift Language Version: Swift 5
+
+================================================================================
+HILFE:
+================================================================================
+
+Siehe auch:
+  - README_SWIFTUI.md     → Ausführliche Anleitung
+  - QUICK_START.md        → 5-Minuten-Setup
+  - beispiel.txt          → Test-Datei
+
+Support:
+  - Apple Developer: developer.apple.com
+  - SwiftUI Docs: developer.apple.com/swiftui
+
+================================================================================
