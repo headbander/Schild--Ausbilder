@@ -7,6 +7,7 @@
 
 import Foundation
 import SwiftUI
+import Combine  // WICHTIG: Für @Published Properties!
 
 @MainActor
 class ConversionManager: ObservableObject {

@@ -12,7 +12,7 @@ struct TXTtoCSVConverterApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .frame(minWidth: 600, minHeight: 500)
+                .frame(minWidth: 800, minHeight: 700)  // GRÖSSERES Fenster: 800x700!
         }
         .windowStyle(.hiddenTitleBar)
         .windowResizability(.contentSize)

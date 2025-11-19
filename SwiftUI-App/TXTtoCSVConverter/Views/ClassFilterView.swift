@@ -71,10 +71,10 @@ struct ClassFilterView: View {
                     .buttonStyle(.bordered)
                 }
 
-                // Klassen-Liste mit Checkboxen
+                // Klassen-Liste mit Checkboxen - VIEL GRÖSSER!
                 ScrollView {
-                    VStack(spacing: 8) {
-                        ForEach(manager.availableClasses, id: \.self) { className in
+                    VStack(spacing: 12) {  // Mehr Spacing zwischen Zeilen
+                        ForEach(manager.availableClasses.sorted(), id: \.self) { className in
                             ClassCheckboxRow(
                                 className: className,
                                 isSelected: manager.selectedClasses.contains(className),
@@ -84,9 +84,9 @@ struct ClassFilterView: View {
                             }
                         }
                     }
-                    .padding(.horizontal, 40)
+                    .padding(20)  // Mehr Padding
                 }
-                .frame(maxHeight: 300)
+                .frame(minHeight: 400, maxHeight: 500)  // VIEL GRÖSSER: 400-500px!
                 .background(Color.gray.opacity(0.05))
                 .cornerRadius(15)
                 .padding(.horizontal, 40)
@@ -130,34 +130,37 @@ struct ClassCheckboxRow: View {
 
     var body: some View {
         Button(action: action) {
-            HStack {
+            HStack(spacing: 16) {  // Mehr Spacing
+                // GRÖSSERES Icon
                 Image(systemName: isSelected ? "checkmark.square.fill" : "square")
-                    .font(.title2)
+                    .font(.system(size: 28))  // Größer!
                     .foregroundStyle(isSelected ? .blue : .secondary)
 
+                // GRÖSSERE Schrift für Klassennamen
                 Text(className)
-                    .font(.body)
+                    .font(.title3)  // Größer: .title3 statt .body
                     .fontWeight(isSelected ? .semibold : .regular)
                     .foregroundStyle(.primary)
 
                 Spacer()
 
-                Text("\(count)")
-                    .font(.subheadline)
+                // Anzahl Schüler
+                Text("\(count) Schüler")  // "Schüler" hinzugefügt
+                    .font(.body)  // Größer
                     .foregroundStyle(.secondary)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 4)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
                     .background(Color.gray.opacity(0.1))
                     .cornerRadius(8)
             }
-            .padding()
+            .padding(16)  // Mehr Padding
             .background(
-                RoundedRectangle(cornerRadius: 10)
+                RoundedRectangle(cornerRadius: 12)  // Etwas rundere Ecken
                     .fill(isSelected ? Color.accentColor.opacity(0.1) : Color.clear)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 10)
-                    .strokeBorder(isSelected ? Color.accentColor : Color.gray.opacity(0.2), lineWidth: 1.5)
+                RoundedRectangle(cornerRadius: 12)
+                    .strokeBorder(isSelected ? Color.accentColor : Color.gray.opacity(0.2), lineWidth: 2)  // Dickerer Border
             )
         }
         .buttonStyle(.plain)

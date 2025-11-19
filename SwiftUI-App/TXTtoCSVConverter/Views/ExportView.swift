@@ -163,8 +163,15 @@ struct ExportView: View {
             panel.nameFieldStringValue = "converted.csv"
         }
 
-        if panel.runModal() == .OK, let url = panel.url {
-            manager.exportToCSV(url: url)
+        // WICHTIG: panel.begin statt panel.runModal() um Threading-Probleme zu vermeiden!
+        panel.begin { [weak manager] response in
+            guard let manager = manager else { return }
+            if response == .OK, let url = panel.url {
+                // WICHTIG: UI-Updates müssen auf dem Main Thread erfolgen
+                DispatchQueue.main.async {
+                    manager.exportToCSV(url: url)
+                }
+            }
         }
     }
 }
