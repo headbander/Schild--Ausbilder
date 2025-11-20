@@ -35,13 +35,21 @@ struct ContentView: View {
                         ))
                         .zIndex(2)
 
+                case .trainerAssignment:
+                    TrainerAssignmentView_Tahoe(manager: manager)
+                        .transition(.asymmetric(
+                            insertion: .move(edge: .trailing).combined(with: .opacity).combined(with: .scale(scale: 0.95)),
+                            removal: .move(edge: .leading).combined(with: .opacity).combined(with: .scale(scale: 1.05))
+                        ))
+                        .zIndex(3)
+
                 case .conversion:
                     ExportView_Tahoe(manager: manager)
                         .transition(.asymmetric(
                             insertion: .move(edge: .trailing).combined(with: .opacity).combined(with: .scale(scale: 0.95)),
                             removal: .move(edge: .leading).combined(with: .opacity).combined(with: .scale(scale: 1.05))
                         ))
-                        .zIndex(3)
+                        .zIndex(4)
                 }
             }
             .animation(.spring(response: 0.5, dampingFraction: 0.75), value: manager.currentStep)
