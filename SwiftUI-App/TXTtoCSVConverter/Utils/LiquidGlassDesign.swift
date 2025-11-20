@@ -411,3 +411,73 @@ struct LiquidGlassCard<Content: View>: View {
             .shadow(color: .black.opacity(0.05), radius: 1, y: 1)
     }
 }
+
+// MARK: - Flow Layout
+
+/// Wiederverwendbares Flow Layout für Tag-Ansichten und flexibles Wrapping
+struct FlowLayout: Layout {
+    var spacing: CGFloat = 8
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let result = FlowResult(in: proposal.width ?? 0, subviews: subviews, spacing: spacing)
+        return result.size
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let result = FlowResult(in: bounds.width, subviews: subviews, spacing: spacing)
+        for (index, row) in result.rows.enumerated() {
+            let rowY = bounds.minY + result.rowYPositions[index]
+            for (subviewIndex, _) in row {
+                let subview = subviews[subviewIndex]
+                let size = subview.sizeThatFits(.unspecified)
+                let x = bounds.minX + result.xOffsets[index][subviewIndex - (row.first?.0 ?? 0)]
+                subview.place(at: CGPoint(x: x, y: rowY), proposal: ProposedViewSize(size))
+            }
+        }
+    }
+
+    struct FlowResult {
+        var rows: [[(Int, ProposedViewSize)]] = []
+        var rowYPositions: [CGFloat] = []
+        var xOffsets: [[CGFloat]] = []
+        var size: CGSize = .zero
+
+        init(in maxWidth: CGFloat, subviews: Subviews, spacing: CGFloat) {
+            var currentRow: [(Int, ProposedViewSize)] = []
+            var currentX: CGFloat = 0
+            var currentY: CGFloat = 0
+            var currentRowHeight: CGFloat = 0
+            var currentRowXOffsets: [CGFloat] = []
+
+            for (index, subview) in subviews.enumerated() {
+                let size = subview.sizeThatFits(.unspecified)
+                let proposal = ProposedViewSize(size)
+
+                if currentX + size.width > maxWidth && !currentRow.isEmpty {
+                    rows.append(currentRow)
+                    rowYPositions.append(currentY)
+                    xOffsets.append(currentRowXOffsets)
+                    currentY += currentRowHeight + spacing
+                    currentRow = []
+                    currentX = 0
+                    currentRowHeight = 0
+                    currentRowXOffsets = []
+                }
+
+                currentRowXOffsets.append(currentX)
+                currentRow.append((index, proposal))
+                currentX += size.width + spacing
+                currentRowHeight = max(currentRowHeight, size.height)
+            }
+
+            if !currentRow.isEmpty {
+                rows.append(currentRow)
+                rowYPositions.append(currentY)
+                xOffsets.append(currentRowXOffsets)
+                currentY += currentRowHeight
+            }
+
+            size = CGSize(width: maxWidth, height: currentY)
+        }
+    }
+}
