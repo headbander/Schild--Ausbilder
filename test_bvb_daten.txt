@@ -1,0 +1,11 @@
+eindeutige Nummer (GUID);Nachname;Vorname;Klasse;Allg. Adresse: Betreuer Name;Allg. Adresse: Betreuer E-Mail
+{D05AFE02-6FE7-4289-AC65-88DF42029AF2};Beddoes;Justin;BVB1;Mader;mader@bkh-handwerk.de
+{B123-4567-89AB-CDEF-0123456789AB};Müller;Anna;BVB1;Mader;mader@bkh-handwerk.de
+{C456-7890-ABCD-EF12-3456789ABCDE};Schmidt;Peter;BVB2;Schmidt;schmidt@example.de
+{D789-0ABC-DEF1-2345-6789ABCDEF12};Weber;Lisa;BVB2;Schmidt;schmidt@example.de
+{E012-3456-789A-BCDE-F0123456789A};Fischer;Tom;10A;Meier;meier@school.de
+{F345-6789-ABCD-EF01-23456789ABCD};Wagner;Sarah;BVB1;Mader;mader@bkh-handwerk.de
+{A678-90AB-CDEF-1234-56789ABCDEF0};Klein;Max;BVB3;Hoffmann;hoffmann@training.de
+{B901-2345-6789-ABCD-EF0123456789};Groß;Marie;BVB3;Hoffmann;hoffmann@training.de
+{C234-5678-90AB-CDEF-0123456789AB};Schneider;Leon;11B;Bauer;bauer@school.de
+{D567-890A-BCDE-F012-3456789ABCDE};Becker;Emma;BVB2;Schmidt;schmidt@example.de
